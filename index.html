@@ -6,29 +6,30 @@
   <title>L10: RevOps — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #F7F5EF;
+      --bg: #F6F7F9;
       --surface: #FFFFFF;
-      --surface-2: #FBF9F3;
-      --ink: #161513;
-      --ink-soft: #2E2C27;
-      --muted: #6B6861;
-      --muted-2: #8F8B82;
-      --border: #E5E2D8;
-      --border-strong: #CFCBBF;
-      --accent: #0B5C3A;
-      --accent-soft: #D9E9E0;
-      --urgent: #B8321E;
-      --urgent-soft: #F5E1DD;
-      --warning: #B47614;
-      --warning-soft: #F4E7CB;
-      --info: #2C5985;
-      --info-soft: #D9E3EC;
-      --shadow-sm: 0 1px 2px rgba(22, 21, 19, 0.04);
-      --shadow-md: 0 2px 8px rgba(22, 21, 19, 0.06), 0 1px 2px rgba(22, 21, 19, 0.04);
-      --display: 'Fraunces', Georgia, serif;
+      --surface-2: #F1F3F5;
+      --surface-3: #E8EBEF;
+      --ink: #0F1419;
+      --ink-soft: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #9CA3AF;
+      --border: #E5E7EB;
+      --border-strong: #D1D5DB;
+      --accent: #0B7A54;
+      --accent-soft: #D1F2E3;
+      --urgent: #C43025;
+      --urgent-soft: #FEE4E2;
+      --warning: #B87309;
+      --warning-soft: #FEF0C7;
+      --info: #2E5DA8;
+      --info-soft: #DCE7F7;
+      --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.04);
+      --shadow-md: 0 4px 12px rgba(17, 24, 39, 0.06), 0 1px 3px rgba(17, 24, 39, 0.05);
+      --shadow-menu: 0 10px 32px rgba(17, 24, 39, 0.10), 0 2px 6px rgba(17, 24, 39, 0.05);
       --sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
       --mono: 'Geist Mono', 'SF Mono', ui-monospace, monospace;
     }
@@ -46,15 +47,8 @@
       font-feature-settings: 'ss01', 'cv11';
     }
 
-    body {
-      background-image:
-        radial-gradient(circle at 15% 10%, rgba(11, 92, 58, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 85% 80%, rgba(184, 50, 30, 0.025) 0%, transparent 50%);
-      min-height: 100vh;
-    }
-
+    body { min-height: 100vh; }
     a { color: inherit; text-decoration: none; }
-
     button {
       font-family: inherit;
       font-size: inherit;
@@ -64,61 +58,79 @@
       color: inherit;
     }
 
-    /* Layout */
     .container {
       max-width: 1480px;
       margin: 0 auto;
-      padding: 40px 48px 80px;
+      padding: 32px 40px 72px;
     }
 
     /* Header */
     .header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
       gap: 32px;
-      padding-bottom: 28px;
+      padding-bottom: 24px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 36px;
+      margin-bottom: 28px;
     }
 
     .title-block h1 {
-      font-family: var(--display);
-      font-weight: 400;
-      font-size: 42px;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
+      font-weight: 700;
+      font-size: 32px;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
       color: var(--ink);
-      font-variation-settings: 'opsz' 96;
     }
 
-    .title-block h1 em {
-      font-style: italic;
-      font-weight: 300;
+    .title-block h1 .accent {
       color: var(--accent);
+      font-weight: 700;
     }
 
     .subtitle {
       font-size: 13px;
       color: var(--muted);
-      margin-top: 8px;
-      letter-spacing: 0.01em;
+      margin-top: 6px;
+      font-weight: 400;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .status-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .sync-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 14px;
+      padding: 7px 12px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 999px;
+      border-radius: 8px;
       font-family: var(--mono);
       font-size: 11px;
       color: var(--muted);
-      letter-spacing: 0.02em;
-      box-shadow: var(--shadow-sm);
+      letter-spacing: 0.01em;
       white-space: nowrap;
+      font-weight: 500;
     }
 
     .sync-dot {
@@ -149,170 +161,295 @@
     .sync-badge.error .sync-dot { background: var(--urgent); animation: none; }
     .sync-badge.error .sync-dot::after { display: none; }
 
-    /* Filters */
-    .filters {
-      display: flex;
+    .me-chip {
+      display: inline-flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 24px;
-      padding: 18px 22px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: var(--shadow-sm);
-      margin-bottom: 36px;
-    }
-
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .filter-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted-2);
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .filter-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .filter-pill {
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--surface-2);
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 8px;
       font-size: 12px;
-      color: var(--ink-soft);
+      font-weight: 500;
+      cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;
     }
 
-    .filter-pill:hover {
-      border-color: var(--border-strong);
+    .me-chip.empty {
       background: var(--surface);
-    }
-
-    .filter-pill.active {
-      background: var(--ink);
-      color: var(--bg);
-      border-color: var(--ink);
-    }
-
-    .filter-divider {
-      width: 1px;
-      height: 24px;
-      background: var(--border);
-    }
-
-    .clear-filters {
-      margin-left: auto;
-      font-size: 12px;
       color: var(--muted);
-      padding: 6px 12px;
-      border-radius: 6px;
-      transition: color 0.15s ease;
+      border: 1px solid var(--border);
     }
 
-    .clear-filters:hover { color: var(--urgent); }
-    .clear-filters[disabled] { opacity: 0.35; cursor: not-allowed; }
+    .me-chip:not(.empty) {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid transparent;
+    }
+
+    .me-chip:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .me-chip:not(.empty):hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Dropdown filter */
+    .dropdown { position: relative; }
+
+    .dropdown-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px 7px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12.5px;
+      color: var(--ink);
+      font-weight: 500;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      min-width: 160px;
+      justify-content: space-between;
+    }
+
+    .dropdown-trigger:hover {
+      border-color: var(--border-strong);
+    }
+
+    .dropdown.open .dropdown-trigger {
+      border-color: var(--ink);
+      box-shadow: 0 0 0 3px rgba(15, 20, 25, 0.06);
+    }
+
+    .dropdown-trigger-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .dropdown-label {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      line-height: 1.2;
+    }
+
+    .dropdown-value {
+      color: var(--ink);
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 140px;
+      line-height: 1.25;
+      font-size: 12.5px;
+    }
+
+    .dropdown-value.all {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .dropdown-chevron {
+      width: 12px;
+      height: 12px;
+      color: var(--muted);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .dropdown.open .dropdown-chevron {
+      transform: rotate(180deg);
+      color: var(--ink);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 240px;
+      max-width: 320px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow-menu);
+      padding: 6px;
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+      pointer-events: none;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    .dropdown.open .dropdown-menu {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--ink);
+      text-align: left;
+      transition: background 0.1s ease;
+      font-weight: 500;
+    }
+
+    .dropdown-item:hover { background: var(--surface-2); }
+    .dropdown-item.selected { background: var(--surface-2); }
+
+    .dropdown-item.selected::after {
+      content: '✓';
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .dropdown-item[data-value=""] {
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      border-radius: 6px 6px 0 0;
+      margin-bottom: 2px;
+    }
+
+    .dropdown-item[data-value=""]:hover,
+    .dropdown-item[data-value=""].selected {
+      color: var(--ink);
+    }
+
+    .clear-filters-link {
+      font-size: 11.5px;
+      color: var(--muted);
+      padding: 7px 10px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      background: none;
+      border: 1px dashed var(--border-strong);
+      font-weight: 500;
+    }
+
+    .clear-filters-link:hover {
+      color: var(--urgent);
+      border-color: var(--urgent);
+    }
+
+    .clear-filters-link[hidden] { display: none; }
 
     /* Section grid */
     .top-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 32px;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1100px) {
+      .header { grid-template-columns: 1fr; }
+      .header-right { align-items: flex-start; }
     }
 
     @media (max-width: 960px) {
       .top-row { grid-template-columns: 1fr; }
-      .container { padding: 24px 20px 60px; }
-      .header { flex-direction: column; gap: 16px; }
-      .title-block h1 { font-size: 34px; }
+      .container { padding: 20px 16px 56px; }
+      .title-block h1 { font-size: 26px; }
+      .dropdown-trigger { min-width: 0; }
+      .dropdown-value { max-width: 100px; }
     }
 
     .section {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 14px;
       overflow: hidden;
       box-shadow: var(--shadow-sm);
-      margin-bottom: 28px;
-      animation: fadeInUp 0.5s ease backwards;
+      margin-bottom: 20px;
+      animation: fadeInUp 0.4s ease backwards;
     }
 
     .section-head {
-      padding: 22px 26px 18px;
+      padding: 16px 22px 14px;
       border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       gap: 16px;
-      background: var(--surface-2);
+    }
+
+    .section-head-left {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
     }
 
     .section-head h2 {
-      font-family: var(--display);
-      font-weight: 400;
-      font-size: 22px;
+      font-weight: 700;
+      font-size: 16px;
       letter-spacing: -0.01em;
       color: var(--ink);
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
     }
 
     .section-count {
       font-family: var(--mono);
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
-      font-weight: 400;
+      font-weight: 500;
       background: var(--surface);
       border: 1px solid var(--border);
-      padding: 2px 8px;
-      border-radius: 6px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      min-width: 22px;
+      text-align: center;
+      display: inline-block;
     }
 
     .section-note {
       font-size: 12px;
       color: var(--muted);
-      letter-spacing: 0.01em;
+      font-weight: 500;
     }
 
-    .section-body { padding: 8px; }
+    .section-body { padding: 6px; }
 
     .section.attention .section-head {
-      background: linear-gradient(180deg, var(--urgent-soft) 0%, var(--surface-2) 100%);
+      background: linear-gradient(90deg, var(--urgent-soft) 0%, var(--surface-2) 70%);
+      border-bottom-color: #F5C9C4;
     }
     .section.attention .section-head h2 { color: var(--urgent); }
 
     .section.intake .section-head {
-      background: linear-gradient(180deg, var(--info-soft) 0%, var(--surface-2) 100%);
+      background: linear-gradient(90deg, var(--info-soft) 0%, var(--surface-2) 70%);
+      border-bottom-color: #BBCEEA;
     }
     .section.intake .section-head h2 { color: var(--info); }
 
     /* Task list */
-    .tasks {
-      display: flex;
-      flex-direction: column;
-    }
+    .tasks { display: flex; flex-direction: column; }
 
     .task {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 14px;
-      padding: 14px 18px;
-      border-radius: 10px;
-      transition: background 0.15s ease;
+      padding: 13px 16px;
+      border-radius: 8px;
+      transition: background 0.12s ease;
       position: relative;
       cursor: pointer;
     }
@@ -342,46 +479,48 @@
     .task-main { min-width: 0; }
 
     .task-name {
-      font-size: 14.5px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 600;
       color: var(--ink);
       line-height: 1.35;
       margin-bottom: 6px;
       display: flex;
       align-items: baseline;
       gap: 8px;
+      letter-spacing: -0.005em;
     }
 
     .mine-badge {
       font-family: var(--mono);
-      font-size: 9.5px;
-      font-weight: 500;
+      font-size: 9px;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--accent);
       background: var(--surface);
       border: 1px solid var(--accent);
-      padding: 1px 6px;
-      border-radius: 4px;
+      padding: 1px 5px;
+      border-radius: 3px;
       line-height: 1.4;
     }
 
     .task-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
     }
 
     .tag {
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 500;
-      padding: 2px 8px;
-      border-radius: 5px;
+      padding: 2px 7px;
+      border-radius: 4px;
       background: var(--surface-2);
       border: 1px solid var(--border);
       color: var(--ink-soft);
       white-space: nowrap;
+      letter-spacing: 0.01em;
     }
 
     .tag.team { background: var(--surface); }
@@ -393,7 +532,7 @@
     .tag.status[data-status="Completed "] { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
     .tag.status[data-status="Deprioritized"] { background: var(--surface-2); color: var(--muted-2); text-decoration: line-through; }
 
-    .tag.company, .tag.vertical { color: var(--muted); font-weight: 400; }
+    .tag.company, .tag.vertical { color: var(--muted); font-weight: 500; }
 
     .task-side {
       text-align: right;
@@ -407,49 +546,46 @@
 
     .due {
       font-family: var(--mono);
-      font-size: 12px;
+      font-size: 11.5px;
       color: var(--muted);
       letter-spacing: 0.01em;
+      font-weight: 500;
     }
 
-    .due.soon { color: var(--warning); font-weight: 500; }
-    .due.overdue { color: var(--urgent); font-weight: 600; }
+    .due.soon { color: var(--warning); font-weight: 600; }
+    .due.overdue { color: var(--urgent); font-weight: 700; }
     .due.today { color: var(--accent); font-weight: 600; }
 
     .external {
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--muted-2);
       opacity: 0;
       transition: opacity 0.15s ease;
       font-family: var(--mono);
+      font-weight: 500;
     }
 
     .task:hover .external { opacity: 1; }
 
-    /* Empty state */
     .empty {
-      padding: 36px 20px;
+      padding: 32px 20px;
       text-align: center;
       color: var(--muted);
-      font-family: var(--display);
-      font-size: 16px;
-      font-style: italic;
-      font-weight: 300;
+      font-size: 13px;
+      font-weight: 500;
     }
 
     .empty::before {
-      content: '—';
+      content: '';
       display: block;
-      color: var(--border-strong);
-      margin-bottom: 6px;
-      font-size: 20px;
-      font-style: normal;
+      width: 28px;
+      height: 2px;
+      background: var(--border-strong);
+      margin: 0 auto 10px;
+      border-radius: 2px;
     }
 
-    /* Skeleton */
-    .skeleton {
-      padding: 14px 18px;
-    }
+    .skeleton { padding: 13px 16px; }
     .skeleton + .skeleton { border-top: 1px solid var(--border); }
 
     .skel-bar {
@@ -460,7 +596,6 @@
       animation: shimmer 1.4s ease-in-out infinite;
       margin-bottom: 8px;
     }
-    .skel-bar.short { width: 60%; }
     .skel-bar.tags { width: 40%; height: 10px; }
 
     @keyframes shimmer {
@@ -469,34 +604,34 @@
     }
 
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Footer links */
     .footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      padding: 28px 8px 0;
+      padding: 24px 4px 0;
       border-top: 1px solid var(--border);
-      margin-top: 28px;
+      margin-top: 24px;
       color: var(--muted);
       font-size: 12px;
+      font-weight: 500;
     }
 
     .footer a {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 16px;
+      padding: 9px 14px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 999px;
+      border-radius: 8px;
       color: var(--ink);
-      font-weight: 500;
-      font-size: 13px;
+      font-weight: 600;
+      font-size: 12.5px;
       transition: all 0.15s ease;
       box-shadow: var(--shadow-sm);
     }
@@ -510,69 +645,44 @@
     .footer .arrow { transition: transform 0.2s ease; }
     .footer a:hover .arrow { transform: translateX(3px); }
 
-    /* Section animation staggering */
     #section-new { animation-delay: 0.05s; }
     #section-urgent { animation-delay: 0.1s; }
     #section-progress { animation-delay: 0.15s; }
     #section-review { animation-delay: 0.2s; }
-
-    /* Identify-me modal (optional email flag) */
-    .me-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      background: var(--accent-soft);
-      border: 1px solid transparent;
-      border-radius: 999px;
-      font-size: 12px;
-      color: var(--accent);
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .me-chip:hover { background: var(--surface); border-color: var(--accent); }
-
-    .me-chip.empty {
-      background: var(--surface);
-      color: var(--muted);
-      border-color: var(--border);
-      font-family: inherit;
-      font-size: 12px;
-      font-style: normal;
-      font-weight: 400;
-      padding: 6px 12px;
-    }
-    .me-chip.empty::before { display: none; }
   </style>
 </head>
 <body>
   <div class="container">
     <header class="header">
       <div class="title-block">
-        <h1>L10: <em>RevOps</em></h1>
+        <h1>L10: <span class="accent">RevOps</span></h1>
         <div class="subtitle">Request intake &amp; workload dashboard · live from Asana</div>
       </div>
-      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
-        <div class="sync-badge" id="sync-badge">
-          <span class="sync-dot"></span>
-          <span id="sync-text">Loading…</span>
+
+      <div class="header-right">
+        <div class="status-row">
+          <div class="sync-badge" id="sync-badge">
+            <span class="sync-dot"></span>
+            <span id="sync-text">Loading…</span>
+          </div>
+          <button class="me-chip empty" id="me-chip" title="Set your email to highlight tasks assigned to you">
+            <span id="me-chip-text">Identify me</span>
+          </button>
         </div>
-        <button class="me-chip empty" id="me-chip" title="Set your email to highlight your tasks">
-          <span id="me-chip-text">Identify me</span>
-        </button>
+
+        <div class="filter-row" id="filter-row">
+          <button class="clear-filters-link" id="clear-filters" hidden>Clear</button>
+        </div>
       </div>
     </header>
-
-    <div class="filters" id="filters">
-      <!-- Filter groups render here -->
-      <button class="clear-filters" id="clear-filters" disabled>Clear filters</button>
-    </div>
 
     <div class="top-row">
       <section class="section intake" id="section-new">
         <div class="section-head">
-          <h2>New Requests <span class="section-count" id="count-new">0</span></h2>
+          <div class="section-head-left">
+            <h2>New Requests</h2>
+            <span class="section-count" id="count-new">0</span>
+          </div>
           <span class="section-note">Needs intake review</span>
         </div>
         <div class="section-body"><div class="tasks" id="list-new"></div></div>
@@ -580,7 +690,10 @@
 
       <section class="section attention" id="section-urgent">
         <div class="section-head">
-          <h2>Urgent <span class="section-count" id="count-urgent">0</span></h2>
+          <div class="section-head-left">
+            <h2>Urgent</h2>
+            <span class="section-count" id="count-urgent">0</span>
+          </div>
           <span class="section-note">Marked urgent — any status</span>
         </div>
         <div class="section-body"><div class="tasks" id="list-urgent"></div></div>
@@ -589,7 +702,10 @@
 
     <section class="section" id="section-progress">
       <div class="section-head">
-        <h2>Current Workload <span class="section-count" id="count-progress">0</span></h2>
+        <div class="section-head-left">
+          <h2>Current Workload</h2>
+          <span class="section-count" id="count-progress">0</span>
+        </div>
         <span class="section-note">In Progress · sorted by due date</span>
       </div>
       <div class="section-body"><div class="tasks" id="list-progress"></div></div>
@@ -597,7 +713,10 @@
 
     <section class="section" id="section-review">
       <div class="section-head">
-        <h2>Up Next <span class="section-count" id="count-review">0</span></h2>
+        <div class="section-head-left">
+          <h2>Up Next</h2>
+          <span class="section-count" id="count-review">0</span>
+        </div>
         <span class="section-note">In Review / Scoping</span>
       </div>
       <div class="section-body"><div class="tasks" id="list-review"></div></div>
@@ -671,7 +790,6 @@
       const [y, m, d] = due_on.split('-').map(Number);
       const due = new Date(y, m - 1, d);
       const diff = Math.round((due - today) / (1000 * 60 * 60 * 24));
-
       if (diff < 0) return { text: `Overdue ${Math.abs(diff)}d`, cls: 'overdue' };
       if (diff === 0) return { text: 'Due today', cls: 'today' };
       if (diff === 1) return { text: 'Due tomorrow', cls: 'soon' };
@@ -684,8 +802,7 @@
     }
 
     function formatTime(iso) {
-      const d = new Date(iso);
-      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     }
 
     function escapeHtml(str) {
@@ -696,7 +813,6 @@
 
     function shortTeam(team) {
       if (!team) return null;
-      // Shorten a couple of long labels for card density
       if (team === 'Operations / HR') return 'Ops / HR';
       if (team === 'National Accounts (MA)') return 'Nat\'l Accts';
       return team;
@@ -710,63 +826,101 @@
       return c;
     }
 
+    function shortFilterValue(value) {
+      if (!value) return 'All';
+      if (value === 'Breakthrough Closing (BTC)') return 'BTC';
+      if (value === 'Modern Amenities (National Accts)') return 'Modern Amenities';
+      if (value === 'Other (Not Listed)') return 'Other';
+      if (value === 'Vendingpreneurs (VP)') return 'Vendingpreneurs';
+      if (value === 'Ben Kelly (BK)') return 'Ben Kelly';
+      if (value === 'AI Managed Services (AIMS)') return 'AI Managed Svcs';
+      if (value === 'Operations / HR') return 'Ops / HR';
+      if (value === 'National Accounts (MA)') return 'Nat\'l Accts';
+      return value;
+    }
+
     // ============================================================
-    // Filter rendering
+    // Dropdown filters
     // ============================================================
+    const CHEVRON_SVG = `<svg class="dropdown-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,6 8,10 12,6"></polyline></svg>`;
+
     function renderFilters() {
-      const container = document.getElementById('filters');
+      const container = document.getElementById('filter-row');
       const clearBtn = document.getElementById('clear-filters');
+      container.querySelectorAll('.dropdown').forEach((el) => el.remove());
 
-      // Clear existing (but keep clear button)
-      container.querySelectorAll('.filter-group, .filter-divider').forEach((el) => el.remove());
-
-      FILTERS.forEach((def, idx) => {
-        const group = document.createElement('div');
-        group.className = 'filter-group';
-        group.innerHTML = `
-          <span class="filter-label">${def.label}</span>
-          <div class="filter-pills" data-filter-key="${def.key}">
-            <button class="filter-pill ${!STATE.filters[def.key] ? 'active' : ''}" data-value="">All</button>
+      FILTERS.forEach((def) => {
+        const current = STATE.filters[def.key];
+        const dd = document.createElement('div');
+        dd.className = 'dropdown';
+        dd.dataset.filterKey = def.key;
+        dd.innerHTML = `
+          <button class="dropdown-trigger" type="button">
+            <div class="dropdown-trigger-inner">
+              <span class="dropdown-label">${escapeHtml(def.label)}</span>
+              <span class="dropdown-value ${current ? '' : 'all'}">${escapeHtml(shortFilterValue(current))}</span>
+            </div>
+            ${CHEVRON_SVG}
+          </button>
+          <div class="dropdown-menu" role="menu">
+            <button class="dropdown-item ${!current ? 'selected' : ''}" data-value="" role="menuitem">All</button>
             ${def.options.map((opt) => `
-              <button class="filter-pill ${STATE.filters[def.key] === opt ? 'active' : ''}" data-value="${escapeHtml(opt)}">${escapeHtml(opt)}</button>
+              <button class="dropdown-item ${current === opt ? 'selected' : ''}" data-value="${escapeHtml(opt)}" role="menuitem">${escapeHtml(opt)}</button>
             `).join('')}
           </div>
         `;
-        container.insertBefore(group, clearBtn);
-
-        if (idx < FILTERS.length - 1) {
-          const div = document.createElement('div');
-          div.className = 'filter-divider';
-          container.insertBefore(div, clearBtn);
-        }
+        container.insertBefore(dd, clearBtn);
       });
 
-      // Wire up
-      container.querySelectorAll('.filter-pills').forEach((group) => {
-        const key = group.dataset.filterKey;
-        group.addEventListener('click', (e) => {
-          const btn = e.target.closest('.filter-pill');
-          if (!btn) return;
-          const val = btn.dataset.value || null;
-          STATE.filters[key] = val;
+      wireDropdowns();
+      clearBtn.hidden = !Object.values(STATE.filters).some((v) => v);
+    }
+
+    function wireDropdowns() {
+      document.querySelectorAll('.dropdown').forEach((dd) => {
+        const trigger = dd.querySelector('.dropdown-trigger');
+        const menu = dd.querySelector('.dropdown-menu');
+
+        trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const wasOpen = dd.classList.contains('open');
+          document.querySelectorAll('.dropdown.open').forEach((o) => o.classList.remove('open'));
+          if (!wasOpen) dd.classList.add('open');
+        });
+
+        menu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+          e.stopPropagation();
+          const key = dd.dataset.filterKey;
+          const value = item.dataset.value || null;
+          STATE.filters[key] = value;
+          dd.classList.remove('open');
           renderFilters();
           render();
         });
       });
-
-      const anyActive = Object.values(STATE.filters).some((v) => v);
-      clearBtn.disabled = !anyActive;
     }
 
-    document.getElementById('clear-filters').addEventListener('click', () => {
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown.open').forEach((dd) => dd.classList.remove('open'));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.dropdown.open').forEach((dd) => dd.classList.remove('open'));
+      }
+    });
+
+    document.getElementById('clear-filters').addEventListener('click', (e) => {
+      e.stopPropagation();
       STATE.filters = { company: null, btc_vertical: null, team: null };
       renderFilters();
       render();
     });
 
     // ============================================================
-    // "Identify me" — lets a user flag tasks assigned to them
-    // Stored locally only (localStorage). No auth, purely a UX aid.
+    // Identify me
     // ============================================================
     function renderMeChip() {
       const chip = document.getElementById('me-chip');
@@ -780,7 +934,8 @@
       }
     }
 
-    document.getElementById('me-chip').addEventListener('click', () => {
+    document.getElementById('me-chip').addEventListener('click', (e) => {
+      e.stopPropagation();
       const current = STATE.myEmail || '';
       const input = prompt(
         'Enter your work email to highlight tasks assigned to you.\n(Stored locally in this browser only — never sent anywhere.)\n\nLeave blank to clear.',
@@ -790,12 +945,12 @@
       const email = input.trim();
       if (!email) {
         localStorage.removeItem('revops_me_email');
+        localStorage.removeItem('revops_me_name');
         STATE.myEmail = null;
         STATE.myName = null;
       } else {
         localStorage.setItem('revops_me_email', email.toLowerCase());
         STATE.myEmail = email.toLowerCase();
-        // Try to infer display name from assignee matches in current data
         inferMyName();
       }
       renderMeChip();
@@ -804,8 +959,6 @@
 
     function inferMyName() {
       if (!STATE.myEmail) return;
-      // Asana API doesn't return assignee email on the tasks endpoint cheaply.
-      // So we fall back to matching by local-part of the email against assignee.name
       const local = STATE.myEmail.split('@')[0].toLowerCase();
       const localParts = local.split(/[.\-_]/);
       for (const t of STATE.tasks) {
@@ -828,7 +981,7 @@
     }
 
     // ============================================================
-    // Task filtering
+    // Task filtering & render
     // ============================================================
     function passesFilters(task) {
       for (const key of Object.keys(STATE.filters)) {
@@ -838,9 +991,6 @@
       return true;
     }
 
-    // ============================================================
-    // Card rendering
-    // ============================================================
     function taskCardHtml(task) {
       const due = formatDue(task.due_on);
       const team = shortTeam(task.fields.team);
@@ -882,11 +1032,7 @@
       const list = document.getElementById(`list-${id}`);
       const count = document.getElementById(`count-${id}`);
       count.textContent = tasks.length;
-      if (tasks.length === 0) {
-        list.innerHTML = emptyState(emptyMsg);
-      } else {
-        list.innerHTML = tasks.map(taskCardHtml).join('');
-      }
+      list.innerHTML = tasks.length === 0 ? emptyState(emptyMsg) : tasks.map(taskCardHtml).join('');
     }
 
     function render() {
@@ -909,7 +1055,6 @@
       renderSection('progress', inProg, 'No active work in progress.');
       renderSection('review', review, 'Nothing pending review.');
 
-      // Footer stats
       const yourCount = visible.filter(isMine).length;
       const totalCount = visible.length;
       const meText = STATE.myName ? ` · ${yourCount} assigned to you` : '';
@@ -944,7 +1089,6 @@
       }
     }
 
-    // Delegated click → open Asana
     document.addEventListener('click', (e) => {
       const task = e.target.closest('.task');
       if (task && task.dataset.taskUrl && task.dataset.taskUrl !== '#') {
@@ -952,7 +1096,6 @@
       }
     });
 
-    // Skeletons on load
     function renderSkeletons() {
       const skel = Array(3).fill(0).map(() => `
         <div class="skeleton">
@@ -965,16 +1108,13 @@
       });
     }
 
-    // ============================================================
     // Init
-    // ============================================================
     renderFilters();
     renderMeChip();
     renderSkeletons();
     fetchTasks();
     setInterval(fetchTasks, REFRESH_MS);
 
-    // Refresh when tab becomes visible again
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') fetchTasks();
     });
