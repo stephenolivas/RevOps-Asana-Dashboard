@@ -165,25 +165,27 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 12px;
+      padding: 6px 12px;
       border-radius: 8px;
       font-size: 12px;
       font-weight: 500;
+      line-height: 1.35;
       cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;
+      border: 1px solid transparent;
+      box-sizing: border-box;
     }
 
     .me-chip.empty {
       background: var(--surface);
       color: var(--muted);
-      border: 1px solid var(--border);
+      border-color: var(--border);
     }
 
     .me-chip:not(.empty) {
       background: var(--accent-soft);
       color: var(--accent);
-      border: 1px solid transparent;
     }
 
     .me-chip:hover {
@@ -458,6 +460,13 @@
     .task:first-child { border-top: none; }
     .task:hover { background: var(--surface-2); }
 
+    .task.urgent-task {
+      background: linear-gradient(90deg, var(--urgent-soft) 0%, transparent 45%);
+    }
+    .task.urgent-task:hover {
+      background: linear-gradient(90deg, var(--urgent-soft) 0%, var(--surface-2) 45%);
+    }
+
     .task.mine {
       background: linear-gradient(90deg, var(--accent-soft) 0%, transparent 60%);
     }
@@ -499,6 +508,20 @@
       color: var(--accent);
       background: var(--surface);
       border: 1px solid var(--accent);
+      padding: 1px 5px;
+      border-radius: 3px;
+      line-height: 1.4;
+    }
+
+    .urgent-badge {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--urgent);
+      background: var(--surface);
+      border: 1px solid var(--urgent);
       padding: 1px 5px;
       border-radius: 3px;
       line-height: 1.4;
@@ -869,7 +892,7 @@
             `).join('')}
           </div>
         `;
-        container.insertBefore(dd, clearBtn);
+        container.appendChild(dd);
       });
 
       wireDropdowns();
@@ -998,6 +1021,7 @@
       const company = shortCompany(task.fields.company);
       const vertical = task.fields.btc_vertical;
       const mine = isMine(task);
+      const urgent = task.fields.urgent === 'Yes';
 
       const tags = [];
       if (team) tags.push(`<span class="tag team">${escapeHtml(team)}</span>`);
@@ -1007,11 +1031,16 @@
         tags.push(`<span class="tag vertical">${escapeHtml(vertical)}</span>`);
       }
 
+      const classes = ['task'];
+      if (urgent) classes.push('urgent-task');
+      if (mine) classes.push('mine');
+
       return `
-        <div class="task ${mine ? 'mine' : ''}" data-task-url="${escapeHtml(task.url || '#')}">
+        <div class="${classes.join(' ')}" data-task-url="${escapeHtml(task.url || '#')}">
           <div class="task-main">
             <div class="task-name">
               <span>${escapeHtml(task.name)}</span>
+              ${urgent ? '<span class="urgent-badge">Urgent</span>' : ''}
               ${mine ? '<span class="mine-badge">You</span>' : ''}
             </div>
             <div class="task-meta">${tags.join('')}</div>
