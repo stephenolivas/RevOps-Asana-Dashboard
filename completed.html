@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L10: RevOps — Completed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F7F5EF;
+      --surface: #FFFFFF;
+      --surface-2: #FBF9F3;
+      --ink: #161513;
+      --ink-soft: #2E2C27;
+      --muted: #6B6861;
+      --muted-2: #8F8B82;
+      --border: #E5E2D8;
+      --border-strong: #CFCBBF;
+      --accent: #0B5C3A;
+      --accent-soft: #D9E9E0;
+      --shadow-sm: 0 1px 2px rgba(22, 21, 19, 0.04);
+      --shadow-md: 0 2px 8px rgba(22, 21, 19, 0.06), 0 1px 2px rgba(22, 21, 19, 0.04);
+      --display: 'Fraunces', Georgia, serif;
+      --sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'Geist Mono', 'SF Mono', ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-image: radial-gradient(circle at 50% 0%, rgba(11, 92, 58, 0.04) 0%, transparent 60%);
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; font-size: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 48px 80px;
+    }
+
+    @media (max-width: 720px) {
+      .container { padding: 24px 20px 60px; }
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      transition: all 0.15s ease;
+    }
+
+    .back-link:hover {
+      color: var(--ink);
+      border-color: var(--ink);
+      transform: translateX(-2px);
+    }
+
+    .header {
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .title-block h1 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 40px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .title-block h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .total {
+      text-align: right;
+    }
+
+    .total .num {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 48px;
+      line-height: 1;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+    }
+
+    .total .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted-2);
+      margin-top: 4px;
+    }
+
+    .group {
+      margin-bottom: 36px;
+      animation: fadeInUp 0.5s ease backwards;
+    }
+
+    .group-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding: 0 0 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .group-head h2 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .group-head .date-range {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .group-head .group-count {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .tasks {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .task {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      padding: 14px 20px;
+      background: var(--surface);
+      transition: background 0.15s ease;
+      cursor: pointer;
+    }
+
+    .task:hover { background: var(--surface-2); }
+
+    .task-name {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tag {
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 5px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+
+    .tag.team { background: var(--surface); }
+    .tag.company { color: var(--muted); font-weight: 400; }
+
+    .completed-on {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .completed-on::before {
+      content: '✓';
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .empty {
+      padding: 64px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--display);
+      font-size: 18px;
+      font-style: italic;
+      font-weight: 300;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .loading {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .sync-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="./index.html" class="back-link">
+      <span>←</span>
+      <span>Dashboard</span>
+    </a>
+
+    <header class="header">
+      <div class="title-block">
+        <h1>Completed <em>Work</em></h1>
+        <div class="subtitle">Recently completed requests — grouped by week</div>
+        <div class="sync-badge">
+          <span class="sync-dot"></span>
+          <span id="sync-text">Loading…</span>
+        </div>
+      </div>
+      <div class="total">
+        <div class="num" id="total-count">—</div>
+        <div class="label">Completed</div>
+      </div>
+    </header>
+
+    <div id="content">
+      <div class="loading">Loading completed tasks…</div>
+    </div>
+  </div>
+
+  <script>
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function shortTeam(team) {
+      if (!team) return null;
+      if (team === 'Operations / HR') return 'Ops / HR';
+      if (team === 'National Accounts (MA)') return 'Nat\'l Accts';
+      return team;
+    }
+
+    function shortCompany(c) {
+      if (!c) return null;
+      if (c === 'Breakthrough Closing (BTC)') return 'BTC';
+      if (c === 'Modern Amenities (National Accts)') return 'Modern Amenities';
+      if (c === 'Other (Not Listed)') return 'Other';
+      return c;
+    }
+
+    function weekStart(dateStr) {
+      // Returns the Monday of the week containing the given date
+      const d = new Date(dateStr);
+      const day = d.getDay(); // 0=Sun, 1=Mon, ...
+      const diff = day === 0 ? -6 : 1 - day;
+      d.setDate(d.getDate() + diff);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function formatWeekLabel(monday) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const thisMon = weekStart(today.toISOString());
+      const diffMs = thisMon - monday;
+      const diffWeeks = Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
+
+      const sun = new Date(monday);
+      sun.setDate(sun.getDate() + 6);
+      const rangeFmt = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      let title;
+      if (diffWeeks === 0) title = 'This week';
+      else if (diffWeeks === 1) title = 'Last week';
+      else if (diffWeeks < 4) title = `${diffWeeks} weeks ago`;
+      else title = monday.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      return { title, range: `${rangeFmt(monday)} – ${rangeFmt(sun)}` };
+    }
+
+    function formatCompletedDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function formatTime(iso) {
+      return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function taskHtml(task) {
+      const team = shortTeam(task.fields.team);
+      const status = task.fields.status;
+      const company = shortCompany(task.fields.company);
+      const tags = [];
+      if (team) tags.push(`<span class="tag team">${escapeHtml(team)}</span>`);
+      if (status && status.trim() !== 'Completed') tags.push(`<span class="tag">${escapeHtml(status.trim())}</span>`);
+      if (company) tags.push(`<span class="tag company">${escapeHtml(company)}</span>`);
+
+      return `
+        <div class="task" data-url="${escapeHtml(task.url || '#')}">
+          <div>
+            <div class="task-name">${escapeHtml(task.name)}</div>
+            <div class="task-meta">${tags.join('')}</div>
+          </div>
+          <div class="completed-on">${escapeHtml(task.completed_at ? formatCompletedDate(task.completed_at) : '—')}</div>
+        </div>
+      `;
+    }
+
+    function renderGroups(tasks) {
+      const container = document.getElementById('content');
+      if (tasks.length === 0) {
+        container.innerHTML = '<div class="empty">No completed tasks yet.</div>';
+        return;
+      }
+
+      // Sort newest first
+      tasks.sort((a, b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
+
+      // Group by week
+      const groups = new Map();
+      for (const t of tasks) {
+        if (!t.completed_at) continue;
+        const monday = weekStart(t.completed_at);
+        const key = monday.toISOString();
+        if (!groups.has(key)) groups.set(key, { monday, tasks: [] });
+        groups.get(key).tasks.push(t);
+      }
+
+      const sorted = Array.from(groups.entries()).sort((a, b) => b[0].localeCompare(a[0]));
+
+      container.innerHTML = sorted.map(([_, g], idx) => {
+        const label = formatWeekLabel(g.monday);
+        return `
+          <section class="group" style="animation-delay: ${idx * 0.04}s">
+            <div class="group-head">
+              <h2>${escapeHtml(label.title)}</h2>
+              <span class="date-range">${escapeHtml(label.range)}</span>
+              <span class="group-count">${g.tasks.length} completed</span>
+            </div>
+            <div class="tasks">
+              ${g.tasks.map(taskHtml).join('')}
+            </div>
+          </section>
+        `;
+      }).join('');
+    }
+
+    document.addEventListener('click', (e) => {
+      const task = e.target.closest('.task');
+      if (task && task.dataset.url && task.dataset.url !== '#') {
+        window.open(task.dataset.url, '_blank', 'noopener');
+      }
+    });
+
+    async function load() {
+      try {
+        const res = await fetch('/api/get-tasks?scope=completed', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`API ${res.status}`);
+        const data = await res.json();
+        document.getElementById('total-count').textContent = data.tasks.length;
+        document.getElementById('sync-text').textContent = `Synced · ${formatTime(data.fetched_at)}`;
+        renderGroups(data.tasks);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('content').innerHTML =
+          '<div class="empty">Could not load completed tasks.</div>';
+        document.getElementById('sync-text').textContent = 'Sync failed';
+      }
+    }
+
+    load();
+    // Refresh less aggressively on this page — every 5 minutes
+    setInterval(load, 5 * 60 * 1000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "revops-dashboard",
+  "version": "1.0.0",
+  "description": "L10: RevOps request intake and workload dashboard, backed by Asana.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18.x"
+  }
+}

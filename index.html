@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L10: RevOps — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F7F5EF;
+      --surface: #FFFFFF;
+      --surface-2: #FBF9F3;
+      --ink: #161513;
+      --ink-soft: #2E2C27;
+      --muted: #6B6861;
+      --muted-2: #8F8B82;
+      --border: #E5E2D8;
+      --border-strong: #CFCBBF;
+      --accent: #0B5C3A;
+      --accent-soft: #D9E9E0;
+      --urgent: #B8321E;
+      --urgent-soft: #F5E1DD;
+      --warning: #B47614;
+      --warning-soft: #F4E7CB;
+      --info: #2C5985;
+      --info-soft: #D9E3EC;
+      --shadow-sm: 0 1px 2px rgba(22, 21, 19, 0.04);
+      --shadow-md: 0 2px 8px rgba(22, 21, 19, 0.06), 0 1px 2px rgba(22, 21, 19, 0.04);
+      --display: 'Fraunces', Georgia, serif;
+      --sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'Geist Mono', 'SF Mono', ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-feature-settings: 'ss01', 'cv11';
+    }
+
+    body {
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(11, 92, 58, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 85% 80%, rgba(184, 50, 30, 0.025) 0%, transparent 50%);
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    button {
+      font-family: inherit;
+      font-size: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 40px 48px 80px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 32px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+
+    .title-block h1 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 42px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      font-variation-settings: 'opsz' 96;
+    }
+
+    .title-block h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      letter-spacing: 0.01em;
+    }
+
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      box-shadow: var(--shadow-sm);
+      white-space: nowrap;
+    }
+
+    .sync-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      position: relative;
+    }
+
+    .sync-dot::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.3;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.8); opacity: 0; }
+    }
+
+    .sync-badge.syncing .sync-dot { background: var(--warning); }
+    .sync-badge.syncing .sync-dot::after { background: var(--warning); }
+    .sync-badge.error .sync-dot { background: var(--urgent); animation: none; }
+    .sync-badge.error .sync-dot::after { display: none; }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 18px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 36px;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .filter-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted-2);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .filter-pill {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      font-size: 12px;
+      color: var(--ink-soft);
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .filter-pill:hover {
+      border-color: var(--border-strong);
+      background: var(--surface);
+    }
+
+    .filter-pill.active {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    .filter-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+    }
+
+    .clear-filters {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: color 0.15s ease;
+    }
+
+    .clear-filters:hover { color: var(--urgent); }
+    .clear-filters[disabled] { opacity: 0.35; cursor: not-allowed; }
+
+    /* Section grid */
+    .top-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 960px) {
+      .top-row { grid-template-columns: 1fr; }
+      .container { padding: 24px 20px 60px; }
+      .header { flex-direction: column; gap: 16px; }
+      .title-block h1 { font-size: 34px; }
+    }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 28px;
+      animation: fadeInUp 0.5s ease backwards;
+    }
+
+    .section-head {
+      padding: 22px 26px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--surface-2);
+    }
+
+    .section-head h2 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .section-count {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .section-note {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+    }
+
+    .section-body { padding: 8px; }
+
+    .section.attention .section-head {
+      background: linear-gradient(180deg, var(--urgent-soft) 0%, var(--surface-2) 100%);
+    }
+    .section.attention .section-head h2 { color: var(--urgent); }
+
+    .section.intake .section-head {
+      background: linear-gradient(180deg, var(--info-soft) 0%, var(--surface-2) 100%);
+    }
+    .section.intake .section-head h2 { color: var(--info); }
+
+    /* Task list */
+    .tasks {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .task {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      transition: background 0.15s ease;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .task + .task { border-top: 1px solid var(--border); border-radius: 0; }
+    .task:first-child { border-top: none; }
+    .task:hover { background: var(--surface-2); }
+
+    .task.mine {
+      background: linear-gradient(90deg, var(--accent-soft) 0%, transparent 60%);
+    }
+    .task.mine:hover {
+      background: linear-gradient(90deg, var(--accent-soft) 0%, var(--surface-2) 60%);
+    }
+
+    .task.mine::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      background: var(--accent);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .task-main { min-width: 0; }
+
+    .task-name {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.35;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .mine-badge {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      padding: 1px 6px;
+      border-radius: 4px;
+      line-height: 1.4;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tag {
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 5px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+
+    .tag.team { background: var(--surface); }
+
+    .tag.status[data-status="In Progress"] { background: var(--warning-soft); border-color: transparent; color: var(--warning); }
+    .tag.status[data-status="In Review / Scoping"] { background: var(--info-soft); border-color: transparent; color: var(--info); }
+    .tag.status[data-status="Not Started / New Request"] { background: var(--surface-2); color: var(--muted); }
+    .tag.status[data-status="Stalled / Blocked"] { background: var(--urgent-soft); border-color: transparent; color: var(--urgent); }
+    .tag.status[data-status="Completed "] { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+    .tag.status[data-status="Deprioritized"] { background: var(--surface-2); color: var(--muted-2); text-decoration: line-through; }
+
+    .tag.company, .tag.vertical { color: var(--muted); font-weight: 400; }
+
+    .task-side {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      min-width: 100px;
+    }
+
+    .due {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+    }
+
+    .due.soon { color: var(--warning); font-weight: 500; }
+    .due.overdue { color: var(--urgent); font-weight: 600; }
+    .due.today { color: var(--accent); font-weight: 600; }
+
+    .external {
+      font-size: 11px;
+      color: var(--muted-2);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      font-family: var(--mono);
+    }
+
+    .task:hover .external { opacity: 1; }
+
+    /* Empty state */
+    .empty {
+      padding: 36px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--display);
+      font-size: 16px;
+      font-style: italic;
+      font-weight: 300;
+    }
+
+    .empty::before {
+      content: '—';
+      display: block;
+      color: var(--border-strong);
+      margin-bottom: 6px;
+      font-size: 20px;
+      font-style: normal;
+    }
+
+    /* Skeleton */
+    .skeleton {
+      padding: 14px 18px;
+    }
+    .skeleton + .skeleton { border-top: 1px solid var(--border); }
+
+    .skel-bar {
+      height: 14px;
+      background: linear-gradient(90deg, var(--surface-2) 0%, var(--border) 50%, var(--surface-2) 100%);
+      background-size: 200% 100%;
+      border-radius: 4px;
+      animation: shimmer 1.4s ease-in-out infinite;
+      margin-bottom: 8px;
+    }
+    .skel-bar.short { width: 60%; }
+    .skel-bar.tags { width: 40%; height: 10px; }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer links */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 28px 8px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--ink);
+      font-weight: 500;
+      font-size: 13px;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .footer a:hover {
+      border-color: var(--ink);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .footer .arrow { transition: transform 0.2s ease; }
+    .footer a:hover .arrow { transform: translateX(3px); }
+
+    /* Section animation staggering */
+    #section-new { animation-delay: 0.05s; }
+    #section-urgent { animation-delay: 0.1s; }
+    #section-progress { animation-delay: 0.15s; }
+    #section-review { animation-delay: 0.2s; }
+
+    /* Identify-me modal (optional email flag) */
+    .me-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--accent-soft);
+      border: 1px solid transparent;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .me-chip:hover { background: var(--surface); border-color: var(--accent); }
+
+    .me-chip.empty {
+      background: var(--surface);
+      color: var(--muted);
+      border-color: var(--border);
+      font-family: inherit;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      padding: 6px 12px;
+    }
+    .me-chip.empty::before { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="title-block">
+        <h1>L10: <em>RevOps</em></h1>
+        <div class="subtitle">Request intake &amp; workload dashboard · live from Asana</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+        <div class="sync-badge" id="sync-badge">
+          <span class="sync-dot"></span>
+          <span id="sync-text">Loading…</span>
+        </div>
+        <button class="me-chip empty" id="me-chip" title="Set your email to highlight your tasks">
+          <span id="me-chip-text">Identify me</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="filters" id="filters">
+      <!-- Filter groups render here -->
+      <button class="clear-filters" id="clear-filters" disabled>Clear filters</button>
+    </div>
+
+    <div class="top-row">
+      <section class="section intake" id="section-new">
+        <div class="section-head">
+          <h2>New Requests <span class="section-count" id="count-new">0</span></h2>
+          <span class="section-note">Needs intake review</span>
+        </div>
+        <div class="section-body"><div class="tasks" id="list-new"></div></div>
+      </section>
+
+      <section class="section attention" id="section-urgent">
+        <div class="section-head">
+          <h2>Urgent <span class="section-count" id="count-urgent">0</span></h2>
+          <span class="section-note">Marked urgent — any status</span>
+        </div>
+        <div class="section-body"><div class="tasks" id="list-urgent"></div></div>
+      </section>
+    </div>
+
+    <section class="section" id="section-progress">
+      <div class="section-head">
+        <h2>Current Workload <span class="section-count" id="count-progress">0</span></h2>
+        <span class="section-note">In Progress · sorted by due date</span>
+      </div>
+      <div class="section-body"><div class="tasks" id="list-progress"></div></div>
+    </section>
+
+    <section class="section" id="section-review">
+      <div class="section-head">
+        <h2>Up Next <span class="section-count" id="count-review">0</span></h2>
+        <span class="section-note">In Review / Scoping</span>
+      </div>
+      <div class="section-body"><div class="tasks" id="list-review"></div></div>
+    </section>
+
+    <footer class="footer">
+      <div id="footer-stats">—</div>
+      <a href="./completed.html">
+        <span>Completed tasks</span>
+        <span class="arrow">→</span>
+      </a>
+    </footer>
+  </div>
+
+  <script>
+    // ============================================================
+    // Config
+    // ============================================================
+    const API_ENDPOINT = '/api/get-tasks?scope=active';
+    const REFRESH_MS = 60 * 1000;
+
+    const FILTERS = [
+      {
+        key: 'company',
+        label: 'Company',
+        options: [
+          'Breakthrough Closing (BTC)',
+          'AIMS',
+          'Modern Amenities (National Accts)',
+          'MedPro',
+          'Other (Not Listed)',
+        ],
+      },
+      {
+        key: 'btc_vertical',
+        label: 'BTC Vertical',
+        options: [
+          'Vendingpreneurs (VP)',
+          'Ben Kelly (BK)',
+          'AI Managed Services (AIMS)',
+        ],
+      },
+      {
+        key: 'team',
+        label: 'Team',
+        options: [
+          'Sales',
+          'Marketing',
+          'Operations / HR',
+          'AIMS',
+          'National Accounts (MA)',
+          'Other',
+        ],
+      },
+    ];
+
+    const STATE = {
+      tasks: [],
+      filters: { company: null, btc_vertical: null, team: null },
+      myEmail: localStorage.getItem('revops_me_email') || null,
+      myName: localStorage.getItem('revops_me_name') || null,
+    };
+
+    // ============================================================
+    // Utilities
+    // ============================================================
+    function formatDue(due_on) {
+      if (!due_on) return { text: 'No due date', cls: '' };
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const [y, m, d] = due_on.split('-').map(Number);
+      const due = new Date(y, m - 1, d);
+      const diff = Math.round((due - today) / (1000 * 60 * 60 * 24));
+
+      if (diff < 0) return { text: `Overdue ${Math.abs(diff)}d`, cls: 'overdue' };
+      if (diff === 0) return { text: 'Due today', cls: 'today' };
+      if (diff === 1) return { text: 'Due tomorrow', cls: 'soon' };
+      if (diff <= 7) {
+        const day = due.toLocaleDateString('en-US', { weekday: 'short' });
+        return { text: `Due ${day}`, cls: 'soon' };
+      }
+      const text = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return { text: `Due ${text}`, cls: '' };
+    }
+
+    function formatTime(iso) {
+      const d = new Date(iso);
+      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function shortTeam(team) {
+      if (!team) return null;
+      // Shorten a couple of long labels for card density
+      if (team === 'Operations / HR') return 'Ops / HR';
+      if (team === 'National Accounts (MA)') return 'Nat\'l Accts';
+      return team;
+    }
+
+    function shortCompany(c) {
+      if (!c) return null;
+      if (c === 'Breakthrough Closing (BTC)') return 'BTC';
+      if (c === 'Modern Amenities (National Accts)') return 'Modern Amenities';
+      if (c === 'Other (Not Listed)') return 'Other';
+      return c;
+    }
+
+    // ============================================================
+    // Filter rendering
+    // ============================================================
+    function renderFilters() {
+      const container = document.getElementById('filters');
+      const clearBtn = document.getElementById('clear-filters');
+
+      // Clear existing (but keep clear button)
+      container.querySelectorAll('.filter-group, .filter-divider').forEach((el) => el.remove());
+
+      FILTERS.forEach((def, idx) => {
+        const group = document.createElement('div');
+        group.className = 'filter-group';
+        group.innerHTML = `
+          <span class="filter-label">${def.label}</span>
+          <div class="filter-pills" data-filter-key="${def.key}">
+            <button class="filter-pill ${!STATE.filters[def.key] ? 'active' : ''}" data-value="">All</button>
+            ${def.options.map((opt) => `
+              <button class="filter-pill ${STATE.filters[def.key] === opt ? 'active' : ''}" data-value="${escapeHtml(opt)}">${escapeHtml(opt)}</button>
+            `).join('')}
+          </div>
+        `;
+        container.insertBefore(group, clearBtn);
+
+        if (idx < FILTERS.length - 1) {
+          const div = document.createElement('div');
+          div.className = 'filter-divider';
+          container.insertBefore(div, clearBtn);
+        }
+      });
+
+      // Wire up
+      container.querySelectorAll('.filter-pills').forEach((group) => {
+        const key = group.dataset.filterKey;
+        group.addEventListener('click', (e) => {
+          const btn = e.target.closest('.filter-pill');
+          if (!btn) return;
+          const val = btn.dataset.value || null;
+          STATE.filters[key] = val;
+          renderFilters();
+          render();
+        });
+      });
+
+      const anyActive = Object.values(STATE.filters).some((v) => v);
+      clearBtn.disabled = !anyActive;
+    }
+
+    document.getElementById('clear-filters').addEventListener('click', () => {
+      STATE.filters = { company: null, btc_vertical: null, team: null };
+      renderFilters();
+      render();
+    });
+
+    // ============================================================
+    // "Identify me" — lets a user flag tasks assigned to them
+    // Stored locally only (localStorage). No auth, purely a UX aid.
+    // ============================================================
+    function renderMeChip() {
+      const chip = document.getElementById('me-chip');
+      const text = document.getElementById('me-chip-text');
+      if (STATE.myName || STATE.myEmail) {
+        chip.classList.remove('empty');
+        text.textContent = STATE.myName ? `You · ${STATE.myName}` : STATE.myEmail;
+      } else {
+        chip.classList.add('empty');
+        text.textContent = 'Identify me';
+      }
+    }
+
+    document.getElementById('me-chip').addEventListener('click', () => {
+      const current = STATE.myEmail || '';
+      const input = prompt(
+        'Enter your work email to highlight tasks assigned to you.\n(Stored locally in this browser only — never sent anywhere.)\n\nLeave blank to clear.',
+        current
+      );
+      if (input === null) return;
+      const email = input.trim();
+      if (!email) {
+        localStorage.removeItem('revops_me_email');
+        STATE.myEmail = null;
+        STATE.myName = null;
+      } else {
+        localStorage.setItem('revops_me_email', email.toLowerCase());
+        STATE.myEmail = email.toLowerCase();
+        // Try to infer display name from assignee matches in current data
+        inferMyName();
+      }
+      renderMeChip();
+      render();
+    });
+
+    function inferMyName() {
+      if (!STATE.myEmail) return;
+      // Asana API doesn't return assignee email on the tasks endpoint cheaply.
+      // So we fall back to matching by local-part of the email against assignee.name
+      const local = STATE.myEmail.split('@')[0].toLowerCase();
+      const localParts = local.split(/[.\-_]/);
+      for (const t of STATE.tasks) {
+        if (!t.assignee?.name) continue;
+        const nameLower = t.assignee.name.toLowerCase();
+        const nameParts = nameLower.split(/\s+/);
+        const overlap = localParts.filter((p) => nameParts.some((n) => n.startsWith(p) || p.startsWith(n)));
+        if (overlap.length >= 1) {
+          STATE.myName = t.assignee.name;
+          localStorage.setItem('revops_me_name', t.assignee.name);
+          return;
+        }
+      }
+    }
+
+    function isMine(task) {
+      if (!task.assignee) return false;
+      if (STATE.myName && task.assignee.name === STATE.myName) return true;
+      return false;
+    }
+
+    // ============================================================
+    // Task filtering
+    // ============================================================
+    function passesFilters(task) {
+      for (const key of Object.keys(STATE.filters)) {
+        const val = STATE.filters[key];
+        if (val && task.fields[key] !== val) return false;
+      }
+      return true;
+    }
+
+    // ============================================================
+    // Card rendering
+    // ============================================================
+    function taskCardHtml(task) {
+      const due = formatDue(task.due_on);
+      const team = shortTeam(task.fields.team);
+      const status = task.fields.status;
+      const company = shortCompany(task.fields.company);
+      const vertical = task.fields.btc_vertical;
+      const mine = isMine(task);
+
+      const tags = [];
+      if (team) tags.push(`<span class="tag team">${escapeHtml(team)}</span>`);
+      if (status) tags.push(`<span class="tag status" data-status="${escapeHtml(status)}">${escapeHtml(status.trim())}</span>`);
+      if (company) tags.push(`<span class="tag company">${escapeHtml(company)}</span>`);
+      if (vertical && STATE.filters.company === 'Breakthrough Closing (BTC)') {
+        tags.push(`<span class="tag vertical">${escapeHtml(vertical)}</span>`);
+      }
+
+      return `
+        <div class="task ${mine ? 'mine' : ''}" data-task-url="${escapeHtml(task.url || '#')}">
+          <div class="task-main">
+            <div class="task-name">
+              <span>${escapeHtml(task.name)}</span>
+              ${mine ? '<span class="mine-badge">You</span>' : ''}
+            </div>
+            <div class="task-meta">${tags.join('')}</div>
+          </div>
+          <div class="task-side">
+            <span class="due ${due.cls}">${escapeHtml(due.text)}</span>
+            <span class="external">Open in Asana ↗</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function emptyState(msg) {
+      return `<div class="empty">${escapeHtml(msg)}</div>`;
+    }
+
+    function renderSection(id, tasks, emptyMsg) {
+      const list = document.getElementById(`list-${id}`);
+      const count = document.getElementById(`count-${id}`);
+      count.textContent = tasks.length;
+      if (tasks.length === 0) {
+        list.innerHTML = emptyState(emptyMsg);
+      } else {
+        list.innerHTML = tasks.map(taskCardHtml).join('');
+      }
+    }
+
+    function render() {
+      const visible = STATE.tasks.filter(passesFilters);
+
+      const newReq = visible.filter((t) => t.section?.name === 'New Requests / Needs Review');
+      const urgent = visible.filter((t) => t.fields.urgent === 'Yes');
+      const inProg = visible
+        .filter((t) => t.fields.status === 'In Progress')
+        .sort((a, b) => {
+          if (!a.due_on && !b.due_on) return 0;
+          if (!a.due_on) return 1;
+          if (!b.due_on) return -1;
+          return a.due_on.localeCompare(b.due_on);
+        });
+      const review = visible.filter((t) => t.fields.status === 'In Review / Scoping');
+
+      renderSection('new', newReq, 'Inbox zero. No new requests.');
+      renderSection('urgent', urgent, 'Nothing urgent right now.');
+      renderSection('progress', inProg, 'No active work in progress.');
+      renderSection('review', review, 'Nothing pending review.');
+
+      // Footer stats
+      const yourCount = visible.filter(isMine).length;
+      const totalCount = visible.length;
+      const meText = STATE.myName ? ` · ${yourCount} assigned to you` : '';
+      document.getElementById('footer-stats').textContent =
+        `${totalCount} active ${totalCount === 1 ? 'task' : 'tasks'} visible${meText}`;
+    }
+
+    // ============================================================
+    // Data fetching
+    // ============================================================
+    async function fetchTasks() {
+      const badge = document.getElementById('sync-badge');
+      const text = document.getElementById('sync-text');
+      badge.classList.remove('error');
+      badge.classList.add('syncing');
+      text.textContent = 'Syncing…';
+
+      try {
+        const res = await fetch(API_ENDPOINT, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`API ${res.status}`);
+        const data = await res.json();
+        STATE.tasks = data.tasks || [];
+        if (STATE.myEmail && !STATE.myName) inferMyName();
+        render();
+        badge.classList.remove('syncing');
+        text.textContent = `Synced · ${formatTime(data.fetched_at)}`;
+      } catch (err) {
+        console.error('Fetch error:', err);
+        badge.classList.remove('syncing');
+        badge.classList.add('error');
+        text.textContent = 'Sync failed';
+      }
+    }
+
+    // Delegated click → open Asana
+    document.addEventListener('click', (e) => {
+      const task = e.target.closest('.task');
+      if (task && task.dataset.taskUrl && task.dataset.taskUrl !== '#') {
+        window.open(task.dataset.taskUrl, '_blank', 'noopener');
+      }
+    });
+
+    // Skeletons on load
+    function renderSkeletons() {
+      const skel = Array(3).fill(0).map(() => `
+        <div class="skeleton">
+          <div class="skel-bar" style="width: 70%"></div>
+          <div class="skel-bar tags"></div>
+        </div>
+      `).join('');
+      ['new', 'urgent', 'progress', 'review'].forEach((id) => {
+        document.getElementById(`list-${id}`).innerHTML = skel;
+      });
+    }
+
+    // ============================================================
+    // Init
+    // ============================================================
+    renderFilters();
+    renderMeChip();
+    renderSkeletons();
+    fetchTasks();
+    setInterval(fetchTasks, REFRESH_MS);
+
+    // Refresh when tab becomes visible again
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') fetchTasks();
+    });
+  </script>
+</body>
+</html>
