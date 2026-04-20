@@ -179,13 +179,13 @@
       box-sizing: border-box;
     }
 
-    .me-chip.empty {
+    .me-chip.is-empty {
       background: var(--surface);
       color: var(--muted);
       border-color: var(--border);
     }
 
-    .me-chip:not(.empty) {
+    .me-chip:not(.is-empty) {
       background: var(--accent-soft);
       color: var(--accent);
     }
@@ -195,7 +195,7 @@
       color: var(--ink);
     }
 
-    .me-chip:not(.empty):hover {
+    .me-chip:not(.is-empty):hover {
       border-color: var(--accent);
       color: var(--accent);
     }
@@ -690,7 +690,7 @@
             <span class="sync-dot"></span>
             <span id="sync-text">Loading…</span>
           </div>
-          <button class="me-chip empty" id="me-chip" title="Set your email to highlight tasks assigned to you">
+          <button class="me-chip is-empty" id="me-chip" title="Set your email to highlight tasks assigned to you">
             <span id="me-chip-text">Identify me</span>
           </button>
         </div>
@@ -951,10 +951,10 @@
       const chip = document.getElementById('me-chip');
       const text = document.getElementById('me-chip-text');
       if (STATE.myName || STATE.myEmail) {
-        chip.classList.remove('empty');
+        chip.classList.remove('is-empty');
         text.textContent = STATE.myName ? `You · ${STATE.myName}` : STATE.myEmail;
       } else {
-        chip.classList.add('empty');
+        chip.classList.add('is-empty');
         text.textContent = 'Identify me';
       }
     }
