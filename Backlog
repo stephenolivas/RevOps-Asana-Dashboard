@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L10: RevOps — Backlog &amp; Blocked</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F6F7F9;
+      --surface: #FFFFFF;
+      --surface-2: #F1F3F5;
+      --ink: #0F1419;
+      --ink-soft: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #9CA3AF;
+      --border: #E5E7EB;
+      --border-strong: #D1D5DB;
+      --accent: #0B7A54;
+      --accent-soft: #D1F2E3;
+      --urgent: #C43025;
+      --urgent-soft: #FEE4E2;
+      --warning: #B87309;
+      --warning-soft: #FEF0C7;
+      --info: #2E5DA8;
+      --info-soft: #DCE7F7;
+      --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.04);
+      --shadow-md: 0 4px 12px rgba(17, 24, 39, 0.06), 0 1px 3px rgba(17, 24, 39, 0.05);
+      --sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'Geist Mono', 'SF Mono', ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-feature-settings: 'ss01', 'cv11';
+    }
+
+    body { min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; font-size: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 40px 72px;
+    }
+
+    @media (max-width: 720px) {
+      .container { padding: 20px 16px 56px; }
+    }
+
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .back-link,
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .back-link { color: var(--muted); }
+    .nav-link { color: var(--ink); font-weight: 600; }
+
+    .back-link:hover {
+      color: var(--ink);
+      border-color: var(--ink);
+      transform: translateX(-2px);
+    }
+
+    .nav-link:hover {
+      border-color: var(--ink);
+      transform: translateX(2px);
+    }
+
+    .header {
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .title-block h1 {
+      font-weight: 700;
+      font-size: 32px;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+    }
+
+    .title-block h1 .accent {
+      color: var(--urgent);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .totals {
+      display: flex;
+      gap: 24px;
+      align-items: flex-end;
+    }
+
+    .total-stat {
+      text-align: right;
+    }
+
+    .total-stat .num {
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .total-stat .num.blocked { color: var(--urgent); }
+    .total-stat .num.backlog { color: var(--muted); }
+
+    .total-stat .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted-2);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      height: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+      font-weight: 500;
+      box-sizing: border-box;
+    }
+
+    .sync-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      animation: fadeInUp 0.4s ease backwards;
+    }
+
+    .section-head {
+      padding: 16px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .section-head-left {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .section-head h2 {
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .section-count {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 5px;
+      min-width: 22px;
+      text-align: center;
+    }
+
+    .section-note {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .section.blocked .section-head {
+      background: linear-gradient(90deg, var(--urgent-soft) 0%, var(--surface-2) 70%);
+      border-bottom-color: #F5C9C4;
+    }
+    .section.blocked .section-head h2 { color: var(--urgent); }
+
+    .section-body { padding: 6px; }
+
+    .tasks { display: flex; flex-direction: column; }
+
+    .task {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      padding: 13px 16px;
+      border-radius: 8px;
+      transition: background 0.12s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .task + .task { border-top: 1px solid var(--border); border-radius: 0; }
+    .task:first-child { border-top: none; }
+    .task:hover { background: var(--surface-2); }
+
+    .task.blocked-task {
+      background: linear-gradient(90deg, var(--urgent-soft) 0%, transparent 45%);
+    }
+    .task.blocked-task:hover {
+      background: linear-gradient(90deg, var(--urgent-soft) 0%, var(--surface-2) 45%);
+    }
+
+    .task-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.35;
+      margin-bottom: 6px;
+      letter-spacing: -0.005em;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--ink-soft);
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+
+    .tag.team { background: var(--surface); }
+
+    .tag.status[data-status="In Progress"] { background: var(--warning-soft); border-color: transparent; color: var(--warning); }
+    .tag.status[data-status="In Review / Scoping"] { background: var(--info-soft); border-color: transparent; color: var(--info); }
+    .tag.status[data-status="Not Started / New Request"] { background: var(--surface-2); color: var(--muted); }
+    .tag.status[data-status="Stalled / Blocked"] { background: var(--urgent-soft); border-color: transparent; color: var(--urgent); }
+    .tag.status[data-status="Deprioritized"] { background: var(--surface-2); color: var(--muted-2); text-decoration: line-through; }
+
+    .tag.company { color: var(--muted); font-weight: 500; }
+
+    .task-side {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      min-width: 110px;
+    }
+
+    .due {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+      font-weight: 500;
+    }
+
+    .due.overdue { color: var(--urgent); font-weight: 700; }
+
+    .last-updated {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--muted-2);
+      font-weight: 500;
+    }
+
+    .empty {
+      padding: 36px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .empty::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 2px;
+      background: var(--border-strong);
+      margin: 0 auto 10px;
+      border-radius: 2px;
+    }
+
+    .loading {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #section-blocked { animation-delay: 0.05s; }
+    #section-backlog { animation-delay: 0.1s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-row">
+      <a href="./index.html" class="back-link">
+        <span>←</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="./completed.html" class="nav-link">
+        <span>Completed</span>
+        <span>→</span>
+      </a>
+    </div>
+
+    <header class="header">
+      <div class="title-block">
+        <h1>Backlog &amp; <span class="accent">Blocked</span></h1>
+        <div class="subtitle">Stalled work and deprioritized requests</div>
+        <div class="sync-badge">
+          <span class="sync-dot"></span>
+          <span id="sync-text">Loading…</span>
+        </div>
+      </div>
+      <div class="totals">
+        <div class="total-stat">
+          <div class="num blocked" id="count-blocked">—</div>
+          <div class="label">Blocked</div>
+        </div>
+        <div class="total-stat">
+          <div class="num backlog" id="count-backlog">—</div>
+          <div class="label">Backlog</div>
+        </div>
+      </div>
+    </header>
+
+    <div id="content">
+      <div class="loading">Loading…</div>
+    </div>
+  </div>
+
+  <script>
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function shortTeam(team) {
+      if (!team) return null;
+      if (team === 'Operations / HR') return 'Ops / HR';
+      if (team === 'National Accounts (MA)') return 'Nat\'l Accts';
+      return team;
+    }
+
+    function shortCompany(c) {
+      if (!c) return null;
+      if (c === 'Breakthrough Closing (BTC)') return 'BTC';
+      if (c === 'Modern Amenities (National Accts)') return 'Modern Amenities';
+      if (c === 'Other (Not Listed)') return 'Other';
+      return c;
+    }
+
+    function formatDue(due_on) {
+      if (!due_on) return { text: 'No due date', cls: '' };
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const [y, m, d] = due_on.split('-').map(Number);
+      const due = new Date(y, m - 1, d);
+      const diff = Math.round((due - today) / (1000 * 60 * 60 * 24));
+      if (diff < 0) return { text: `Overdue ${Math.abs(diff)}d`, cls: 'overdue' };
+      if (diff === 0) return { text: 'Due today', cls: '' };
+      const text = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return { text: `Due ${text}`, cls: '' };
+    }
+
+    function formatLastUpdated(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      const today = new Date();
+      const diffDays = Math.round((today - d) / (1000 * 60 * 60 * 24));
+      if (diffDays === 0) return 'Updated today';
+      if (diffDays === 1) return 'Updated 1d ago';
+      if (diffDays < 30) return `Updated ${diffDays}d ago`;
+      if (diffDays < 60) return 'Updated 1mo ago';
+      return `Updated ${Math.round(diffDays / 30)}mo ago`;
+    }
+
+    function formatTime(iso) {
+      return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function taskHtml(task, isBlockedTask) {
+      const due = formatDue(task.due_on);
+      const team = shortTeam(task.fields.team);
+      const status = task.fields.status;
+      const company = shortCompany(task.fields.company);
+      const tags = [];
+      if (team) tags.push(`<span class="tag team">${escapeHtml(team)}</span>`);
+      if (status) tags.push(`<span class="tag status" data-status="${escapeHtml(status)}">${escapeHtml(status.trim())}</span>`);
+      if (company) tags.push(`<span class="tag company">${escapeHtml(company)}</span>`);
+
+      const updated = formatLastUpdated(task.modified_at);
+
+      return `
+        <div class="task ${isBlockedTask ? 'blocked-task' : ''}" data-url="${escapeHtml(task.url || '#')}">
+          <div>
+            <div class="task-name">${escapeHtml(task.name)}</div>
+            <div class="task-meta">${tags.join('')}</div>
+          </div>
+          <div class="task-side">
+            <span class="due ${due.cls}">${escapeHtml(due.text)}</span>
+            ${updated ? `<span class="last-updated">${escapeHtml(updated)}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function render(tasks) {
+      // Blocked: status = Stalled / Blocked
+      const blocked = tasks
+        .filter((t) => t.fields.status === 'Stalled / Blocked')
+        .sort((a, b) => (b.modified_at || '').localeCompare(a.modified_at || ''));
+
+      // Backlog: in "Backlog / Deprioritized" section OR status = Deprioritized,
+      // excluding blocked tasks to avoid duplicates
+      const backlog = tasks
+        .filter((t) => {
+          if (t.fields.status === 'Stalled / Blocked') return false;
+          return t.section?.name === 'Backlog / Deprioritized' || t.fields.status === 'Deprioritized';
+        })
+        .sort((a, b) => (b.modified_at || '').localeCompare(a.modified_at || ''));
+
+      document.getElementById('count-blocked').textContent = blocked.length;
+      document.getElementById('count-backlog').textContent = backlog.length;
+
+      const container = document.getElementById('content');
+      container.innerHTML = `
+        <section class="section blocked" id="section-blocked">
+          <div class="section-head">
+            <div class="section-head-left">
+              <h2>Blocked</h2>
+              <span class="section-count">${blocked.length}</span>
+            </div>
+            <span class="section-note">Status: Stalled / Blocked</span>
+          </div>
+          <div class="section-body">
+            <div class="tasks">
+              ${blocked.length === 0
+                ? '<div class="empty">Nothing blocked. Nice.</div>'
+                : blocked.map((t) => taskHtml(t, true)).join('')}
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-backlog">
+          <div class="section-head">
+            <div class="section-head-left">
+              <h2>Backlog</h2>
+              <span class="section-count">${backlog.length}</span>
+            </div>
+            <span class="section-note">Deprioritized or parked for later</span>
+          </div>
+          <div class="section-body">
+            <div class="tasks">
+              ${backlog.length === 0
+                ? '<div class="empty">Backlog is empty.</div>'
+                : backlog.map((t) => taskHtml(t, false)).join('')}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    document.addEventListener('click', (e) => {
+      const task = e.target.closest('.task');
+      if (task && task.dataset.url && task.dataset.url !== '#') {
+        window.open(task.dataset.url, '_blank', 'noopener');
+      }
+    });
+
+    async function load() {
+      try {
+        const res = await fetch('/api/get-tasks?scope=active', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`API ${res.status}`);
+        const data = await res.json();
+        render(data.tasks || []);
+        document.getElementById('sync-text').textContent = `Synced · ${formatTime(data.fetched_at)}`;
+      } catch (err) {
+        console.error(err);
+        document.getElementById('content').innerHTML =
+          '<div class="empty">Could not load tasks.</div>';
+        document.getElementById('sync-text').textContent = 'Sync failed';
+      }
+    }
+
+    load();
+    setInterval(load, 60 * 1000);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') load();
+    });
+  </script>
+</body>
+</html>
