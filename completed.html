@@ -271,14 +271,48 @@
       border-radius: 50%;
       background: var(--accent);
     }
+
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-weight: 600;
+      color: var(--ink);
+      transition: all 0.15s ease;
+    }
+
+    .nav-link:hover {
+      border-color: var(--ink);
+      transform: translateX(-2px);
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <a href="./index.html" class="back-link">
-      <span>←</span>
-      <span>Dashboard</span>
-    </a>
+    <div class="nav-row">
+      <a href="./index.html" class="back-link">
+        <span>←</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="./backlog.html" class="nav-link">
+        <span>←</span>
+        <span>Backlog &amp; Blocked</span>
+      </a>
+    </div>
 
     <header class="header">
       <div class="title-block">
