@@ -19,6 +19,7 @@ const FIELD_GIDS = {
   team: '1214130958768804',
   priority: '1213831450479879',
   date_requested: '1213816753397469',
+  task_category: '1214163745067806',
 };
 
 const OPT_FIELDS = [
@@ -117,6 +118,7 @@ function normalizeTask(raw) {
       team: getEnum(FIELD_GIDS.team),
       priority: getEnum(FIELD_GIDS.priority),
       date_requested: getDisplay(FIELD_GIDS.date_requested),
+      task_category: getEnum(FIELD_GIDS.task_category),
     },
   };
 }
