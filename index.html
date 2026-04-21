@@ -444,6 +444,18 @@
     }
     .section.intake .section-head h2 { color: var(--info); }
 
+    .section.active .section-head {
+      background: linear-gradient(90deg, var(--accent-soft) 0%, var(--surface-2) 70%);
+      border-bottom-color: #B8E2CE;
+    }
+    .section.active .section-head h2 { color: var(--accent); }
+
+    .section.upnext .section-head {
+      background: linear-gradient(90deg, var(--warning-soft) 0%, var(--surface-2) 70%);
+      border-bottom-color: #EBD9A3;
+    }
+    .section.upnext .section-head h2 { color: var(--warning); }
+
     /* Task list */
     .tasks { display: flex; flex-direction: column; }
 
@@ -731,7 +743,7 @@
       </section>
     </div>
 
-    <section class="section" id="section-progress">
+    <section class="section active" id="section-progress">
       <div class="section-head">
         <div class="section-head-left">
           <h2>Actively In Progress</h2>
@@ -742,7 +754,7 @@
       <div class="section-body"><div class="tasks" id="list-progress"></div></div>
     </section>
 
-    <section class="section" id="section-review">
+    <section class="section upnext" id="section-review">
       <div class="section-head">
         <div class="section-head-left">
           <h2>Current Workload / Up Next</h2>
