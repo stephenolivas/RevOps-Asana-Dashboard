@@ -760,7 +760,7 @@
           <h2>Current Workload / Up Next</h2>
           <span class="section-count" id="count-review">0</span>
         </div>
-        <span class="section-note">In Review / Scoping</span>
+        <span class="section-note">In Review / Scoping · sorted by due date</span>
       </div>
       <div class="section-body"><div class="tasks" id="list-review"></div></div>
     </section>
@@ -1093,17 +1093,24 @@
     function render() {
       const visible = STATE.tasks.filter(passesFilters);
 
+      // Sort by due date ascending (soonest first); tasks without due date
+      // fall to the bottom, ordered by created date ascending (oldest requests
+      // surface first since they've been waiting longer).
+      const byDueThenCreated = (a, b) => {
+        if (a.due_on && b.due_on) return a.due_on.localeCompare(b.due_on);
+        if (a.due_on) return -1;
+        if (b.due_on) return 1;
+        return (a.created_at || '').localeCompare(b.created_at || '');
+      };
+
       const newReq = visible.filter((t) => t.section?.name === 'New Requests / Needs Review');
       const urgent = visible.filter((t) => t.fields.urgent === 'Yes');
       const inProg = visible
         .filter((t) => t.fields.status === 'In Progress')
-        .sort((a, b) => {
-          if (!a.due_on && !b.due_on) return 0;
-          if (!a.due_on) return 1;
-          if (!b.due_on) return -1;
-          return a.due_on.localeCompare(b.due_on);
-        });
-      const review = visible.filter((t) => t.fields.status === 'In Review / Scoping');
+        .sort(byDueThenCreated);
+      const review = visible
+        .filter((t) => t.fields.status === 'In Review / Scoping')
+        .sort(byDueThenCreated);
 
       renderSection('new', newReq, 'Inbox zero. No new requests.');
       renderSection('urgent', urgent, 'Nothing urgent right now.');
