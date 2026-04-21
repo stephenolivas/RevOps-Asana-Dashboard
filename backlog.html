@@ -295,7 +295,16 @@
     .tag.status[data-status="In Review / Scoping"] { background: var(--warning-soft); border-color: transparent; color: var(--warning); }
     .tag.status[data-status="Not Started / New Request"] { background: var(--info-soft); border-color: transparent; color: var(--info); }
     .tag.status[data-status="Stalled / Blocked"] { background: var(--urgent-soft); border-color: transparent; color: var(--urgent); }
-    .tag.status[data-status="Deprioritized"] { background: var(--surface-2); color: var(--muted-2); text-decoration: line-through; }
+    .tag.status[data-status="Backlog / Deprioritized"] { background: var(--surface-2); color: var(--muted-2); text-decoration: line-through; }
+
+    .tag.category {
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .tag.category[data-category="Project / Rock"] { background: #D4EDE2; border-color: transparent; color: #0B6A44; }
+    .tag.category[data-category="Bugs"] { background: #FDE6D8; border-color: transparent; color: #9A3D08; }
+    .tag.category[data-category="Ad-Hoc"] { background: #DEE8F7; border-color: transparent; color: #2A4D87; }
+    .tag.category[data-category="Data / Reporting"] { background: #EADBF4; border-color: transparent; color: #6B3A94; }
 
     .tag.company { color: var(--muted); font-weight: 500; }
 
@@ -456,9 +465,11 @@
       const team = shortTeam(task.fields.team);
       const status = task.fields.status;
       const company = shortCompany(task.fields.company);
+      const category = task.fields.task_category;
       const tags = [];
       if (team) tags.push(`<span class="tag team">${escapeHtml(team)}</span>`);
       if (status) tags.push(`<span class="tag status" data-status="${escapeHtml(status)}">${escapeHtml(status.trim())}</span>`);
+      if (category) tags.push(`<span class="tag category" data-category="${escapeHtml(category)}">${escapeHtml(category)}</span>`);
       if (company) tags.push(`<span class="tag company">${escapeHtml(company)}</span>`);
 
       const updated = formatLastUpdated(task.modified_at);
@@ -483,12 +494,12 @@
         .filter((t) => t.fields.status === 'Stalled / Blocked')
         .sort((a, b) => (b.modified_at || '').localeCompare(a.modified_at || ''));
 
-      // Backlog: in "Backlog / Deprioritized" section OR status = Deprioritized,
+      // Backlog: in "Backlog / Deprioritized" section OR status = Backlog / Deprioritized,
       // excluding blocked tasks to avoid duplicates
       const backlog = tasks
         .filter((t) => {
           if (t.fields.status === 'Stalled / Blocked') return false;
-          return t.section?.name === 'Backlog / Deprioritized' || t.fields.status === 'Deprioritized';
+          return t.section?.name === 'Backlog / Deprioritized' || t.fields.status === 'Backlog / Deprioritized';
         })
         .sort((a, b) => (b.modified_at || '').localeCompare(a.modified_at || ''));
 
